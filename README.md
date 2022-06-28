@@ -32,6 +32,8 @@ The Backend of Uber Eats Clone with NestJS, Jest, GraphQL, TypeORM, React and Ty
 
 ## Creating Application
 
+- [Nest CLI](https://docs.nestjs.com/cli/overview)를 사용하여 새 프로젝트를 생성합니다.
+
 ```bash
 $ nest g application uber-eats-backend
 ```
@@ -89,3 +91,54 @@ Nest is [MIT licensed](LICENSE).
 $ git init
 $ git remote add origin https://github.com/sungalex/uber-eats-backend.git
 ```
+
+- Visual Studio Code에 gitignore(CodeZombie) 패키지를 설치하면, 명령팔레트(Shift + Command + P)에서 `add gitignore` 명령으로 프로그램/프레임워크에 맞는 `.gitignore` 파일을 자동 생성할 수 있음
+
+## GraphQL API
+
+- [GraphQL](https://docs.nestjs.com/graphql/quick-start) 설치
+
+```bash
+# For Express and Apollo (default)
+$ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
+```
+
+- `app.controller`, `app.service` 모듈 삭제 (서비스별 Module을 만들어서 `app.module`에 import)
+
+- [Getting started with GraphQL & TypeScript](https://docs.nestjs.com/graphql/quick-start#getting-started-with-graphql--typescript)
+
+- Apollo Server Setup
+
+  - `GraphQLModule` import for root : `forRoot()` static method는 Options Object를 인수로 사용합니다. 이 옵션들은 기본 드라이버 인스턴스(ApolloDriver)로 전달됩니다. 사용 가능한 설정에 대한 자세한 내용은 [Apollo](https://www.apollographql.com/docs/apollo-server/v2/api/apollo-server.html#constructor-options-lt-ApolloServer-gt) 참조.
+
+  - 아래 코드는 playground 모드를 활성화 하고, debug 모드를 비활성화 하는 예 입니다.
+
+  ```ts
+  // app.module.ts
+  import { Module } from '@nestjs/common';
+  import { GraphQLModule } from '@nestjs/graphql';
+  import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+
+  @Module({
+    imports: [
+      GraphQLModule.forRoot<ApolloDriverConfig>({
+        driver: ApolloDriver,
+        debug: false,
+        playground: true,
+      }),
+    ],
+    controllers: [],
+    providers: [],
+  })
+  export class AppModule {}
+  ```
+
+- Resolvers, GraphQL Schema
+
+  - https://www.apollographql.com/docs/apollo-server/api/apollo-server
+
+- GraphQL playground
+
+  - GraphQL playground는 브라우저 내 GraphQL IDE 이며, 플레이그라운드에 액세스하려면 기본 GraphQL 서버를 구성([Resolvers](https://docs.nestjs.com/graphql/resolvers-map) 설정)을 완료하고 실행해야 합니다.
+
+  - `http://localhost:3000/graphql`에서 GraphQL 플레이그라운드를 사용할 수 있습니다.
