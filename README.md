@@ -135,7 +135,77 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
 
 - Resolvers, GraphQL Schema
 
-  - https://www.apollographql.com/docs/apollo-server/api/apollo-server
+  - Query(gql) --> Resolvers --> GraphQL Schema
+
+  - GraphQL 스키마를 생성하는 방법은 `Code First`와 `Schema First`가 있습니다.
+
+  - `Code First` 접근 방식
+
+    - 데코레이터와 TypeScript 클래스를 사용하여 해당 GraphQL 스키마를 생성합니다.
+
+    - `autoSchemaFile` options 객체에 속성을 추가합니다. `autoSchemaFile` 속성 값은 자동으로 생성된 스키마가 생성될 경로입니다.
+
+      ```ts
+      GraphQLModule.forRoot<ApolloDriverConfig>({
+        driver: ApolloDriver,
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      }),
+      ```
+
+    - 또는 메모리에서 즉석에서 스키마를 생성할 수 있습니다. 이를 활성화하려면 `autoSchemaFile` 속성을 `true`로 설정합니다.
+
+      ```ts
+      GraphQLModule.forRoot<ApolloDriverConfig>({
+        driver: ApolloDriver,
+        autoSchemaFile: true,
+      }),
+      ```
+
+  - `Schema First` 접근 방식
+
+    - `typePaths` 옵션 객체에 속성을 추가합니다. `typePaths` 속성은 `GraphQLModule`이 GraphQL SDL 스키마 정의 파일을 찾을 위치를 나타 냅니다. 이러한 파일들은 메모리에서 결합 됩니다. 이를 통해 스키마를 여러 파일로 분할하여 해당 Resolvers 근처에 파일들을 위치 시킬 수 있게 합니다.
+
+    - 일반적으로 GraphQL SDL types에 해당하는 TypeScript 정의(클래스 및 인터페이스)도 필요합니다. `@nestjs/graphql` 패키지는 추상 구문 트리([Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree))로부터 TypeScript 정의를 자동으로 생성 할 수 있습니다. 이 기능을 사용하려면 `GraphQLModule`을 configuring 할 때 `definitions` 옵션 속성을 추가하십시오.
+
+    - `definitions` 객체의 `path` 속성은 생성된 TypeScript 출력을 저장할 위치를 나타냅니다.
+
+      ```ts
+      GraphQLModule.forRoot<ApolloDriverConfig>({
+        driver: ApolloDriver,
+        typePaths: ['./**/*.graphql'],
+        definitions: {
+          path: join(process.cwd(), 'src/graphql.ts'),
+        },
+      }),
+      ```
+
+  - Resolvers
+
+    - `restaurants` module 생성 : `app.module`에 자동으로 import 됨
+
+      ```bash
+      $ nest g mo restaurants
+      ```
+
+    - `restaurants.resolver.ts` 만들기 (`@Resolver()` 데코레이터를 가지는 Typescript class `RestaurantResolver` 만들기)
+
+      - `RestaurantResolver` class에 `@Query()` 데코레이터를 가지는 함수 작성하기. 이 함수는 `@Query()`의 typeFunc 함수가 리턴하는 type과 같은 type을 return 해야 함
+
+      - `@Query()`는 typeFunc을 인자로 가짐. typeFunc(ReturnTypeFunction)은 Query가 return 하고자 하는 type을 return 하는 function 임
+
+      - 예로, `@Query(() => Boolean)`에서 @Query()`의 인자는 Boolean을 리턴하는 함수이며, isPizzaGood() 함수는 Boolean(true)를 return 함
+
+        ```ts
+        @Resolver()
+        export class RestaurantResolver() {
+          @Query(() => Boolean)
+          isPizzaGood() {
+            return true;
+          }
+        }
+        ```
+
+    - `restaurants.module`의 provider에 `RestaurantResolver` 추가 하기
 
 - GraphQL playground
 
