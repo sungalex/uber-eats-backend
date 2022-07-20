@@ -228,3 +228,22 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
       isGood?: boolean;
     }
     ```
+
+### 1.3 [Arguments](https://docs.nestjs.com/graphql/resolvers#args-decorator-options)
+
+- 메서드 핸들러에서 사용할 인수를 Request에서 추출하기 위해 `@Args()` 데코레이터를 사용 합니다. REST request 파라미터에서 인수를 추출하는 것과 매우 유사한 방식으로 작동합니다.
+
+  ```ts
+  @Resolver(() => Restaurant)
+  export class RestaurantResolver {
+    @Query(() => [Restaurant])
+    restaurants(@Args('veganOnly') veganOnly: boolean): Restaurant[] {
+      console.log(veganOnly);
+      return [];
+    }
+  }
+  ```
+
+- Playground에서 아래와 같이 확인할 수 있습니다.
+
+  ![playground_restaurants](docs/imgs/playground_restaurants.png)

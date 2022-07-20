@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { Restaurant } from './entities/restaurant.entity';
 
-@Resolver()
+@Resolver(() => Restaurant)
 export class RestaurantResolver {
-  @Query(() => Restaurant)
-  myRestaurant() {
-    return true; // return type error (will to be fixed!!!)
+  @Query(() => [Restaurant])
+  restaurants(@Args('veganOnly') veganOnly: boolean): Restaurant[] {
+    console.log(veganOnly);
+    return [];
   }
 }
