@@ -109,7 +109,7 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
 
 - Apollo Server Setup
 
-  - `GraphQLModule` import for root : `forRoot()` static method는 Options Object를 인수로 사용합니다. 이 옵션들은 기본 드라이버 인스턴스(ApolloDriver)로 전달됩니다. 사용 가능한 설정에 대한 자세한 내용은 [Apollo](https://www.apollographql.com/docs/apollo-server/v2/api/apollo-server.html#constructor-options-lt-ApolloServer-gt) 참조.
+  - import `GraphQLModule` for root : `forRoot()` static method는 Options Object를 인수로 사용합니다. 이 옵션들은 기본 드라이버 인스턴스(ApolloDriver)로 전달됩니다. 사용 가능한 설정에 대한 자세한 내용은 [Apollo](https://www.apollographql.com/docs/apollo-server/v2/api/apollo-server.html#constructor-options-lt-ApolloServer-gt) 참조.
 
   - 아래 코드는 playground 모드를 활성화 하고, debug 모드를 비활성화 하는 예 입니다.
 
@@ -165,21 +165,14 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
 
     - `typePaths` 옵션 객체에 속성을 추가합니다. `typePaths` 속성은 `GraphQLModule`이 GraphQL SDL 스키마 정의 파일을 찾을 위치를 나타 냅니다. 이러한 파일들은 메모리에서 결합 됩니다. 이를 통해 스키마를 여러 파일로 분할하여 해당 Resolvers 근처에 파일들을 위치 시킬 수 있게 합니다.
 
-    - 일반적으로 GraphQL SDL types에 해당하는 TypeScript 정의(클래스 및 인터페이스)도 필요합니다. `@nestjs/graphql` 패키지는 추상 구문 트리([Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree))로부터 TypeScript 정의를 자동으로 생성 할 수 있습니다. 이 기능을 사용하려면 `GraphQLModule`을 configuring 할 때 `definitions` 옵션 속성을 추가하십시오.
-
-    - `definitions` 객체의 `path` 속성은 생성된 TypeScript 출력을 저장할 위치를 나타냅니다.
-
       ```ts
       GraphQLModule.forRoot<ApolloDriverConfig>({
         driver: ApolloDriver,
         typePaths: ['./**/*.graphql'],
-        definitions: {
-          path: join(process.cwd(), 'src/graphql.ts'),
-        },
       }),
       ```
 
-  - Resolvers
+  - first Resolvers(RestaurantResolver) 만들기
 
     - `restaurants` module 생성 : `app.module`에 자동으로 import 됨
 
@@ -193,7 +186,7 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
 
       - `@Query()`는 typeFunc을 인자로 가짐. typeFunc(ReturnTypeFunction)은 Query가 return 하고자 하는 type을 return 하는 function 임
 
-      - 예로, `@Query(() => Boolean)`에서 @Query()`의 인자는 Boolean을 리턴하는 함수이며, isPizzaGood() 함수는 Boolean(true)를 return 함
+      - 예로, `@Query(() => Boolean)`에서 @Query()`의 인자는 Boolean을 리턴하는 함수이며, isPizzaGood() 함수는 Boolean을 return 함
 
         ```ts
         @Resolver()
