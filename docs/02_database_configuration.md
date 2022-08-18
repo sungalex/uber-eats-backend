@@ -20,6 +20,8 @@
 
 ## 2.2 TypeORM Setup
 
+- [NestJS > Techniques > Database](https://docs.nestjs.com/techniques/database)
+
 - NestJS and TypeORM Integration (Install the associated client API libraries for your selected database)
 
   ```zsh
@@ -110,3 +112,35 @@
   ```
 
 - `npm run start:dev`로 dev 모드를 시작하면 환경변수가 잘 로드 되는 걸 확인할 수 있습니다.
+
+## 2.4 Validating ConfigService ([Schema validation](https://docs.nestjs.com/techniques/configuration#schema-validation))
+
+- 필수 환경 변수가 제공되지 않았거나 특정 유효성 검사 규칙을 충족하지 않는 경우 응용 프로그램 시작할때 예외를 throw 하는 것이 일반적인 관행입니다. [`joi`](https://github.com/hapijs/joi)는 JavaScript 용 스키마 설명 언어 및 데이터 유효성 검사기 입니다. Joi를 사용하여 개체 스키마를 정의하고 JavaScript 개체의 유효성을 검사합니다.
+
+- joi 패키지 설치하기
+
+  ```zsh
+  $ npm i joi
+  ```
+
+- 스키마 정의하기
+
+  ```ts
+  import * as Joi from 'joi';
+
+  @Module({
+    imports: [
+      ConfigModule.forRoot({
+        validationSchema: Joi.object({
+          NODE_ENV: Joi.string().valid('dev', 'prod').required(),
+          DB_HOST: Joi.string().required(),
+          DB_PORT: Joi.number().required(),
+          DB_USERNAME: Joi.string().required(),
+          DB_PASSWORD: Joi.string().required(),
+          DB_NAME: Joi.string().required(),
+        }),
+      }),
+    ],
+  })
+  export class AppModule {}
+  ```
