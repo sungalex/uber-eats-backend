@@ -43,6 +43,12 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
 
   - Query(gql) --> Resolvers --> GraphQL Schema
 
+  - SDL(Schema Definition Language) : 스키마 정의 언어
+
+  - GraphQL specification은 스키마를 정의하고 문자열로 저장하는 데 사용하는 사람이 읽을 수 있는 스키마 정의 언어(또는 SDL)를 정의합니다.
+
+  - `gql`은 SDL로 작성된 GraphQL Qurey 문 입니다.
+
   - GraphQL 스키마를 생성하는 방법은 `Code First`와 `Schema First`가 있습니다.
 
 - `Code First` 접근 방식 (여기서는 이 방식을 사용합니다.)
@@ -151,3 +157,87 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
 - Playground에서 아래와 같이 확인할 수 있습니다.
 
   ![playground_restaurants](imgs/playground_restaurants.png)
+
+## 1.4 ArgsType and InputType
+
+- 데이타베이스에 쓰기를 유발하는 모든 작업은 Mutation을 명시적으로 보내야 한다는 Convention을 준수하는 것이 좋습니다. Nest에서는 `@Mutation()` 데코레이터를 사용합니다.
+
+- 모든 데코러이터(@Resolver, @ResolveField, @Args, etc.)는 `@nestjs/graphql` 패키지로 부터 Export 됩니다.
+
+- Mutation 매서드를 생성할 때 인수를 하나 하나 개별적으로 선언해도 되지만, Mutation이 객체를 인수로 가져야 하는 경우 Input Type을 생성해서 객체를 통째로 인수로 전달할 할 수도 있습니다. Input Type은 인수로 전달할 수 있는 특수한 유형의 Object Type 입니다. Input Type을 선언하려면 `@InputType()` 데코레이터를 사용하십시오.
+
+- @InputType() 사용하기
+
+  - `create-restaurant.dto.ts`에 Input Type 생성하기
+
+    ```ts
+    import { Field, InputType } from '@nestjs/graphql';
+
+    @InputType()
+    export class CreateRestaurantDto {
+      @Field(() => String)
+      name: string;
+      @Field(() => Boolean)
+      isVigan: boolean;
+      @Field(() => String)
+      address: string;
+      @Field(() => String)
+      ownersName: string;
+    }
+    ```
+
+  - `restaurants.resolver.ts` 파일에 `createRestaurant()` Mutation method 생성하기 (@Args에 인수명을 포함해야 합니다.)
+
+    ```ts
+    @Mutation(() => Boolean)
+    createRestaurant(
+      @Args('createRestaurantInput') createRestaurantInput: CreateRestaurantDto,
+    ): boolean {
+      console.log(createRestaurantInput);
+      return true;
+    }
+    ```
+
+  - Playground에서 확인하기 (변수명에 객체를 할당해서 인수로 전달해야 합니다.)
+
+    ```gql
+    mutation {
+      createRestaurant(
+        createRestaurantInput: {
+          name: "Nest"
+          isVigan: false
+          address: "seoul"
+          ownersName: "alex"
+        }
+      )
+    }
+    ```
+
+- `@ArgsType()` 사용하기 (이 프로젝트에서는 이 방법을 사용 합니다.)
+
+  - @InputType() 대신 @ArgsType()을 사용하면 DTO에 선언한 각각의 필드를 분리된 Arguments로 사용할 수 있게 합니다.
+
+  - `create-restaurant.dto.ts`에 `@InputType()`을 `@ArgsType()`으로 변경하고, 아래와 같이 `restaurants.resolver.ts` 파일에 `createRestaurant()` Mutation method의 `@Args` 인수명을 제거 합니다.
+
+    ```ts
+    @Mutation(() => Boolean)
+    createRestaurant(
+      @Args() createRestaurantDto: CreateRestaurantDto,
+    ): boolean {
+      console.log(createRestaurantDto);
+      return true;
+    }
+    ```
+
+  - Playground에서 확인하기 (각각의 필드에 값을 할당해서 인수로 전달 합니다.)
+
+    ```gql
+    mutation {
+      createRestaurant(
+        name: "Nest"
+        isVigan: false
+        address: "seoul"
+        ownersName: "alex"
+      )
+    }
+    ```
