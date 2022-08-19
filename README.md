@@ -95,7 +95,7 @@ Nest is [MIT licensed](LICENSE).
 
 ### 2. DATABASE CONFIGURATION - [강의 노트](docs/02_Database_Configuration.md)
 
-### 3. TYPEORM AND NEST
+### 3. TYPEORM AND NEST - [강의 노트](docs/03_TypeORM_and_Nest.md)
 
 ### 4. USER CRUD
 
