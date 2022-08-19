@@ -93,7 +93,7 @@ Nest is [MIT licensed](LICENSE).
 
 ### 1. GRAPHQL API - [강의 노트](docs/01_GraphQL_API.md)
 
-### 2. DATABASE CONFIGURATION - [강의 노트](docs/02_database_configuration.md)
+### 2. DATABASE CONFIGURATION - [강의 노트](docs/02_Database_Configuration.md)
 
 ### 3. TYPEORM AND NEST
 
