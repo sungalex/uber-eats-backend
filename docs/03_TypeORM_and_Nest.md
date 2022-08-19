@@ -8,17 +8,33 @@
 
 - 필드에는 @Field()에 @Column() 데코레이터를 동시에 지정 합니다. Entity에는 하나의 Primary Column(@PrimaryGeneratedColumn() or @PrimaryColumn())을 지정해야 합니다.
 
+  ```ts
+  // restaurant.entity.ts
+  @ObjectType()
+  @Entity()
+  export class Restaurant {
+    @Field(() => String)
+    @Column()
+    name: string;
+    // ... 생략
+  }
+  ```
+
 - `TypeOrmModule` Options에 Entity List를 추가하고 `synchronize: true`로 설정하면 Entity에 정의한 스키마가 데이터베이스에 자동으로 생성 됩니다.
 
   - `app.module.ts`
 
   ```ts
-  // ... 생략
-  TypeOrmModule.forRoot({
-      // ... 생략
-      entities: [Restaurant],
-      synchronize: true,
-  }),
+  // app.module.ts
+  @Module({
+    imports: [
+        TypeOrmModule.forRoot({
+            // ... 생략
+            entities: [Restaurant],
+            synchronize: true,
+        }),
+    ],
+  })
   ```
 
   - postico 도구에서 restaurant 테이블이 자동으로 생성된 것을 확인할 수 있습니다.
@@ -75,4 +91,47 @@
 
   - Maintainability 측면에서 Large Application에 적합합니다.
 
-  - Nest는 Data Mapper Pattern을 사용합니다. Nest는 Repository를 사용할 수 있도록 자동으로 class를 준비해주고, `NestJs + TypeORM` 개발 환경에서 Repository를 사용할 수 있습니다.
+  - Nest는 Data Mapper Pattern([Repository pattern](https://docs.nestjs.com/techniques/database#repository-pattern))을 사용합니다. Nest는 Repository를 사용할 수 있도록 자동으로 class를 준비해줍니다.
+
+## 3.2 Injecting The Repository (Repository pattern)
+
+- TypeORM은 Repository 디자인 패턴을 지원하므로 각 엔터티에는 자체 저장소가 있습니다. 이러한 리포지토리는 데이터베이스 데이터 원본에서 얻을 수 있습니다.
+
+- Restaurant entity를 정의 합니다. Restaurant entity를 사용하기 위해서는 TypeOrmModule의 forRoot() 메서드 옵션에 `entities` array 값으로 Restaurant entity를 추가해야 합니다. ([참고](#3.0-Our-First-TypeORM-Entity))
+
+- `restaurants` 모듈에 `forFeature()` 메서드를 사용하여 현재 범위(현재 모듈)에 등록될 저장소(스키마)를 정의합니다.
+
+  ```ts
+  // restaurants.module.ts
+  @Module({
+    imports: [TypeOrmModule.forFeature([Restaurant])],
+    providers: [RestaurantResolver, RestaurantService],
+  })
+  ```
+
+- `restaurants` 모듈에 Restaurant 스키마를 import 했기 때문에, `@InjectRepository()` 데코레이터를 사용하여 RestaurantService에 Restaurant Repository를 주입할 수 있습니다.
+
+  ```ts
+  // restaurants.service.ts
+  @Injectable()
+  export class RestaurantService {
+    constructor(
+      @InjectRepository(Restaurant)
+      private readonly restaurants: Repository<Restaurant>,
+    ) {}
+
+    getAll(): Promise<Restaurant[]> {
+      return this.restaurants.find();
+    }
+  }
+  ```
+
+- [Playground](http://localhost:3000/graphql)에서 아래와 같이 GraphQL Query를 사용하여 데이터베이스에 쿼리를 요청할 수 있습니다.
+
+  ```gql
+  {
+    restaurants {
+      name
+    }
+  }
+  ```
