@@ -241,3 +241,40 @@ $ npm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
       )
     }
     ```
+
+## 1.5 Validating ConfigService
+
+- DTO(@ArgsType)에도 class validator를 사용할 수 있습니다. class-validator와 class-transformer를 설치 합니다.
+
+  ```zsh
+  $ npm i class-validator class-transformer
+  ```
+
+- DTO(`create-restaurant.dto.ts`)에 유효성 검사 데코레이터 추가하기 (Validation Pipeline을 추가해야 유효성 검사가 동작함)
+
+  ```ts
+  import { ArgsType, Field } from '@nestjs/graphql';
+  import { IsBoolean, IsString, Length } from 'class-validator';
+
+  @ArgsType()
+  export class CreateRestaurantDto {
+    @Field(() => String)
+    @IsString()
+    @Length(5, 10)
+    name: string;
+
+    @Field(() => Boolean)
+    @IsBoolean()
+    isVigan: boolean;
+
+    // ...
+  }
+  ```
+
+- Validation Pipeline 추가하기 (아래 코드를 `main.ts`에 추가)
+
+  ```ts
+  app.useGlobalPipes(new ValidationPipe());
+  ```
+
+- Playground에서 인수 타입 및 Length 제약사항 유효성 검사가 정상 작동하는지 확인할 수 있습니다.
